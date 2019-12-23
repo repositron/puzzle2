@@ -45,7 +45,7 @@ object CrossWires {
   }
   def calcIntersections(pss1: List[Line], pss2: List[Line]) : List[Point] = {
 
-    def search(target:Line, l:Array[Line]) = {
+    def search(target:Line, l:Array[Line]) : List[Int] = {
       def recursion(low: Int, high: Int): Option[Int] = (low + high) / 2 match {
         case _ if high < low => None
         case mid if l(mid) > target => recursion(low, mid - 1)
@@ -64,7 +64,9 @@ object CrossWires {
     })
     val sorted1 = pss1.sortWith(sortXAxis).toArray
     val sorted2 = pss2.sortWith(sortXAxis).toArray
-    sorted1.
+    sorted1.foreach(x => {
+      search(x, sorted2)
+    })
 
   }
 
