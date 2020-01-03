@@ -26,26 +26,26 @@ object CrossWires {
     s.split(",").map(x => convert(x)).toList
   }
 
-  def plotPaths(d: List[Direction], port: Point) : List[Point] = {
-    def loop(ds: List[Direction], origin: Point) : List[Point] = {
+  def plotPaths(d: List[Direction], port: Point) : Set[Point] = {
+    def loop(ds: List[Direction], origin: Point) : Set[Point] = {
       ds match {
         case d::ds1 => {
           val newPoint = d match {
-            case U(i) => Point(origin.x, origin.y + i)
-            case D(i) => Point(origin.x, origin.y - i)
-            case R(i) => Point(origin.x + 1, origin.y)
-            case L(i) => Point(origin.x - 1, origin.y)
+            case U(i) => Range(origin.y + 1, origin.y + i).map(y => Point(origin.x, y))
+            case D(i) => Range(origin.y - 1, origin.y - i).map(y => Point(origin.x, y))
+            case R(i) => Range(origin.x + 1, origin.x + i).map(x => Point(x, origin.y))
+            case L(i) => Range(origin.x - 1, origin.x - i).map(x => Point(x, origin.y))
           }
-          loop(ds1, newPoint) ::: newPoint
+          loop(ds1, newPoint(newPoint.size - 1)) ++ (newPoint.toSet)
         }
-        case Nil => Nil
+        case Nil => Set.empty
       }
     }
     loop(d, port)
   }
   def calcIntersections(pss1: List[Line], pss2: List[Line]) : List[Point] = {
 
-    def search(target:Line, l:Array[Line]) : List[Int] = {
+    def search(target: Line, l: Array[Line]): List[Int] = {
       def recursion(low: Int, high: Int): Option[Int] = (low + high) / 2 match {
         case _ if high < low => None
         case mid if l(mid) > target => recursion(low, mid - 1)
@@ -53,9 +53,15 @@ object CrossWires {
         case mid => Some(mid)
       }
 
-      recursion(0, l.size - 1)
-    }
+      val mid = recursion(0, l.size - 1)
+      mid.flatMap(i => {
 
+      })
+    }
+    def getInterPoint(line1: Line, line2: Line) : Option[Point] = {
+      if (line1.p1.x <= line2.p2)
+
+    }
 
     def sortXAxis = ((a: Line, b: Line) => {
       val lineAx = if (a.p1.x <= a.p2.x) a.p1.x else a.p2.x
@@ -67,6 +73,7 @@ object CrossWires {
     sorted1.foreach(x => {
       search(x, sorted2)
     })
+
 
   }
 
