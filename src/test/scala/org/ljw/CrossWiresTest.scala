@@ -6,6 +6,13 @@ class CrossWiresTest extends org.scalatest.FunSuite {
     val points = CrossWires.plotPaths(a.toList, Point(1, 1))
 
   }
+
+  test("plot points 2") {
+    val dir1 = List(U(2), R(2))
+    val points = CrossWires.plotPaths2(dir1, Point(1, 1))
+
+  }
+
   test("intersection") {
     val l1 = List(Line(Point(1, 5), Point(1,10)),
       Line(Point(1, 10), Point(4, 10)))

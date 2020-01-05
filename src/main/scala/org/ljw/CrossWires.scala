@@ -30,19 +30,35 @@ object CrossWires {
     def loop(ds: List[Direction], origin: Point) : Set[Point] = {
       ds match {
         case d::ds1 => {
-          val newPoint = d match {
-            case U(i) => Range(origin.y + 1, origin.y + i).map(y => Point(origin.x, y))
-            case D(i) => Range(origin.y - 1, origin.y - i).map(y => Point(origin.x, y))
-            case R(i) => Range(origin.x + 1, origin.x + i).map(x => Point(x, origin.y))
-            case L(i) => Range(origin.x - 1, origin.x - i).map(x => Point(x, origin.y))
-          }
-          loop(ds1, newPoint(newPoint.size - 1)) ++ (newPoint.toSet)
+          val newPoints = pointFn(d)(origin)
+          loop(ds1, newPoints(newPoints.size - 1)) ++ (newPoints.toSet)
         }
         case Nil => Set.empty
       }
     }
     loop(d, port)
   }
+
+  def plotPaths2(d: List[Direction], port: Point) : Set[Point] = {
+    var a = d.foldLeft(port)((b, dir) => pointFn(dir)(b))
+
+  }
+
+
+  def pointFn(dir: Direction)(origin: Point) : List[Point] = {
+    val plottedPoints = dir match {
+      case U(i) => Range(origin.y + 1, origin.y + i).map(y => Point(origin.x, y))
+      case D(i) => Range(origin.y - 1, origin.y - i).map(y => Point(origin.x, y))
+      case R(i) => Range(origin.x + 1, origin.x + i).map(x => Point(x, origin.y))
+      case L(i) => Range(origin.x - 1, origin.x - i).map(x => Point(x, origin.y))
+    }
+    plottedPoints.toList
+  }
+
+  def intersectingPoints(l1: Set[Point], l2: List[Direction]) : List[Point] = {
+      Nil
+  }
+
   def calcIntersections(pss1: List[Line], pss2: List[Line]) : List[Point] = {
 
     def search(target: Line, l: Array[Line]): List[Int] = {
