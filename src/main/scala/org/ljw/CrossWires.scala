@@ -1,5 +1,8 @@
 package org.ljw
 
+import scala.annotation.tailrec
+
+
 case class Point(x: Int, y: Int)
 case class Line(p1: Point, p2: Point)
 
@@ -14,10 +17,10 @@ object CrossWires {
   def convert(s: String) : Direction = {
     val i = s.substring(1).toInt
     s(0) match {
-      case "U" => U(i)
-      case "D" => D(i)
-      case "R" => R(i)
-      case "L" => L(i)
+      case 'U' => U(i)
+      case 'D' => D(i)
+      case 'R' => R(i)
+      case 'L' => L(i)
       case _ => throw new RuntimeException()
     }
   }
@@ -26,81 +29,46 @@ object CrossWires {
     s.split(",").map(x => convert(x)).toList
   }
 
-  def plotPaths(d: List[Direction], port: Point) : Set[Point] = {
-    def loop(ds: List[Direction], origin: Point) : Set[Point] = {
-      ds match {
-        case d::ds1 => {
-          val newPoints = pointFn(d)(origin)
-          loop(ds1, newPoints(newPoints.size - 1)) ++ (newPoints.toSet)
+  def plotPaths(direction: List[Direction], port: Point) : Set[Point] = {
+    direction match {
+      case x :: xs => {
+        val points = dirToPoints(x)(port).toSet
+        if (points.isEmpty) {
+          println("empty")
         }
-        case Nil => Set.empty
+        plotPaths(xs, points.head) ++ points
       }
+      case Nil => Set()
     }
-    loop(d, port)
   }
 
-  def plotPaths2(d: List[Direction], port: Point) : Set[Point] = {
-    var a = d.foldLeft(port)((b, dir) => pointFn(dir)(b))
-
-  }
-
-
-  def pointFn(dir: Direction)(origin: Point) : List[Point] = {
+  // excluding origin, plot the points of the line
+  def dirToPoints(dir: Direction)(origin: Point) : List[Point] = {
     val plottedPoints = dir match {
-      case U(i) => Range(origin.y + 1, origin.y + i).map(y => Point(origin.x, y))
-      case D(i) => Range(origin.y - 1, origin.y - i).map(y => Point(origin.x, y))
-      case R(i) => Range(origin.x + 1, origin.x + i).map(x => Point(x, origin.y))
-      case L(i) => Range(origin.x - 1, origin.x - i).map(x => Point(x, origin.y))
+      case U(i) => Range(origin.y + 1, origin.y + i + 1).reverse.map(y => Point(origin.x, y))
+      case D(i) => Range(origin.y - i, origin.y).map(y => Point(origin.x, y))
+      case R(i) => Range(origin.x + 1, origin.x + i + 1).reverse.map(x => Point(x, origin.y))
+      case L(i) => Range(origin.x - i, origin.x).map(x => Point(x, origin.y))
+    }
+    if (plottedPoints.isEmpty) {
+      println("empty")
     }
     plottedPoints.toList
   }
 
-  def intersectingPoints(l1: Set[Point], l2: List[Direction]) : List[Point] = {
-      Nil
+  def intersectingPoints(l1: Set[Point], l2: Set[Point]) : List[Point] = {
+    l1.intersect(l2).toList
   }
 
-  def calcIntersections(pss1: List[Line], pss2: List[Line]) : List[Point] = {
-
-    def search(target: Line, l: Array[Line]): List[Int] = {
-      def recursion(low: Int, high: Int): Option[Int] = (low + high) / 2 match {
-        case _ if high < low => None
-        case mid if l(mid) > target => recursion(low, mid - 1)
-        case mid if l(mid) < target => recursion(mid + 1, high)
-        case mid => Some(mid)
-      }
-
-      val mid = recursion(0, l.size - 1)
-      mid.flatMap(i => {
-
-      })
-    }
-    def getInterPoint(line1: Line, line2: Line) : Option[Point] = {
-      if (line1.p1.x <= line2.p2)
-
-    }
-
-    def sortXAxis = ((a: Line, b: Line) => {
-      val lineAx = if (a.p1.x <= a.p2.x) a.p1.x else a.p2.x
-      val lineBx = if (b.p1.x <= b.p2.x) b.p1.x else b.p2.x
-      lineAx < lineBx
-    })
-    val sorted1 = pss1.sortWith(sortXAxis).toArray
-    val sorted2 = pss2.sortWith(sortXAxis).toArray
-    sorted1.foreach(x => {
-      search(x, sorted2)
-    })
-
-
-  }
-
-  def manhattanDist(path1: List[Point], path2: List[Point]) : Int = {
-    1
+  def manDistance(port: Point, point: Point) : Int = {
+    math.abs(point.x - port.x) + math.abs(point.y - port.y)
   }
 
   def solve(l1: String, l2: String, port: Point) : Int = {
-    val intersection = calcIntersections(plotPaths(getValues(l1), port),
+    val intersection = intersectingPoints(plotPaths(getValues(l1), port),
       plotPaths(getValues(l2), port))
 
+    intersection.map(manDistance(port, _)).min
   }
 }
 
