@@ -30,19 +30,22 @@ object CrossWires {
   }
 
   def plotPaths(direction: List[Direction], port: Point) : Set[Point] = {
-    direction match {
-      case x :: xs => {
-        val points = dirToPoints(x)(port).toSet
-        if (points.isEmpty) {
-          println("empty")
+    def loop(direction: List[Direction], port: Point, acc: Set[Point]) : Set[Point] = {
+      direction match {
+        case x :: xs => {
+          val points = dirToPoints(x)(port).toSet
+          if (points.isEmpty) {
+            println("empty")
+          }
+          loop(xs, points.head, acc ++ points)
         }
-        plotPaths(xs, points.head) ++ points
+        case Nil => acc
       }
-      case Nil => Set()
     }
+    loop(direction, port, Set())
   }
 
-  // excluding origin, plot the points of the line
+  // excluding origin, plot the points of the line the head is the next starting point
   def dirToPoints(dir: Direction)(origin: Point) : List[Point] = {
     val plottedPoints = dir match {
       case U(i) => Range(origin.y + 1, origin.y + i + 1).reverse.map(y => Point(origin.x, y))

@@ -3,4 +3,7 @@ x.map(_ * 2)
 
 Range(1, 5).inclusive.map(_ * 50 )
 
+Range(-2, 5)
+
+
 
